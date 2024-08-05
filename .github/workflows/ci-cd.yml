@@ -40,20 +40,25 @@ jobs:
           echo "No tags found, setting default version to 1.0.0"
           LATEST_TAG="v1.0.0"
         fi
+        echo "LATEST_TAG=$LATEST_TAG"
         echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
         echo "::set-output name=latest_tag::$LATEST_TAG"
 
     - name: Increment version
       id: increment_version
       run: |
-        VERSION=${{ steps.get_version.outputs.latest_tag//v/ }}
+        VERSION=${{ steps.get_version.outputs.latest_tag }}
+        VERSION=${VERSION#v}
         IFS='.' read -r -a VERSION_PARTS <<< "$VERSION"
         NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$((${VERSION_PARTS[2]} + 1))"
+        echo "NEW_VERSION=$NEW_VERSION"
         echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
         echo "::set-output name=new_version::$NEW_VERSION"
 
     - name: Create new git tag
       run: |
+        git config --global user.name 'github-actions'
+        git config --global user.email 'github-actions@github.com'
         git tag -a "v${{ steps.increment_version.outputs.new_version }}" -m "Release version ${{ steps.increment_version.outputs.new_version }}"
         git push origin "v${{ steps.increment_version.outputs.new_version }}"
 
