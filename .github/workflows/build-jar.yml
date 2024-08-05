@@ -6,7 +6,7 @@ name: Build JAR and Increment Version
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build:
@@ -22,10 +22,14 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Set up Maven 3.9.2
-      uses: s4u/setup-maven@v2
-      with:
-        maven-version: '3.9.2'
+    - name: Install Maven 3.9.2
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget
+        wget https://archive.apache.org/dist/maven/maven-3/3.9.2/binaries/apache-maven-3.9.2-bin.tar.gz
+        tar -xvzf apache-maven-3.9.2-bin.tar.gz
+        sudo mv apache-maven-3.9.2 /opt/
+        sudo ln -s /opt/apache-maven-3.9.2/bin/mvn /usr/bin/mvn
 
     - name: Increment version
       id: increment_version
