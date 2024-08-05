@@ -21,12 +21,11 @@ jobs:
 
     - name: Install Maven 3.9.2
       run: |
-        sudo apt-get update
-        sudo apt-get install -y wget
         wget https://archive.apache.org/dist/maven/maven-3/3.9.2/binaries/apache-maven-3.9.2-bin.tar.gz
-        tar -xvzf apache-maven-3.9.2-bin.tar.gz
-        sudo mv apache-maven-3.9.2 /opt/
-        sudo ln -s /opt/apache-maven-3.9.2/bin/mvn /usr/bin/mvn
+        tar -xzf apache-maven-3.9.2-bin.tar.gz
+        sudo mv apache-maven-3.9.2 /usr/local/apache-maven
+        echo "MAVEN_HOME=/usr/local/apache-maven" >> $GITHUB_ENV
+        echo "PATH=/usr/local/apache-maven/bin:$PATH" >> $GITHUB_ENV
 
     - name: Increment version
       id: increment_version
