@@ -23,9 +23,9 @@ jobs:
         distribution: 'temurin'
 
     - name: Set up Maven 3.9.2
-      uses: s4u/maven-settings-action@v2
+      uses: s4u/setup-maven@v2
       with:
-        maven-version: 3.9.2
+        maven-version: '3.9.2'
 
     - name: Increment version
       id: increment_version
