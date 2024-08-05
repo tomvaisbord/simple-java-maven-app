@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: Build JAR and Increment Version
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,7 +25,7 @@ jobs:
         tar -xzf apache-maven-3.9.2-bin.tar.gz
         sudo mv apache-maven-3.9.2 /usr/local/apache-maven
         echo "MAVEN_HOME=/usr/local/apache-maven" >> $GITHUB_ENV
-        echo "PATH=/usr/local/apache-maven/bin:$PATH" >> $GITHUB_ENV
+        echo "/usr/local/apache-maven/bin" >> $GITHUB_PATH
 
     - name: Increment version
       id: increment_version
@@ -41,23 +41,6 @@ jobs:
 
     - name: Build with Maven
       run: mvn clean package -DskipTests
-
-    - name: Build Docker image
-      run: |
-        VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-        docker build . -t myapp:$VERSION --build-arg VERSION=$VERSION
-
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-
-    - name: Push Docker image
-      run: |
-        VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-        docker tag myapp:$VERSION ${{ secrets.DOCKER_USERNAME }}/myapp:$VERSION
-        docker push ${{ secrets.DOCKER_USERNAME }}/myapp:$VERSION
 
     - name: Upload JAR file
       uses: actions/upload-artifact@v3
