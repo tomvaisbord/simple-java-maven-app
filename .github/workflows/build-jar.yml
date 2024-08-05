@@ -6,7 +6,7 @@ name: Build JAR and Increment Version
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build:
