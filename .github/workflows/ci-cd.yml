@@ -90,3 +90,29 @@ jobs:
       with:
         name: myapp-jar
         path: target/*.jar
+
+    - name: Deploy to EC2
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: ${{ secrets.EC2_INSTANCE_REGION }}
+        EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      run: |
+        # Configure AWS CLI
+        aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+        aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+        aws configure set default.region $AWS_DEFAULT_REGION
+
+        # Use AWS CLI to send commands to EC2 instance
+        aws ssm send-command \
+          --document-name "AWS-RunShellScript" \
+          --targets "Key=instanceIds,Values=$EC2_INSTANCE_ID" \
+          --parameters '{"commands":["sudo docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD",
+                                     "sudo docker pull $DOCKER_USERNAME/myapp:${{ steps.increment_version.outputs.new_version }}",
+                                     "sudo docker stop myapp || true",
+                                     "sudo docker rm myapp || true",
+                                     "sudo docker run -d -p 8080:8080 --name myapp $DOCKER_USERNAME/myapp:${{ steps.increment_version.outputs.new_version }}"]}' \
+          --timeout-seconds 600 \
+          --comment "Deploying myapp to EC2 instance"
