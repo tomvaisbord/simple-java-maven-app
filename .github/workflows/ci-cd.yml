@@ -40,6 +40,7 @@ jobs:
         NEW_VERSION=$(echo $VERSION | awk -F. -v patch=$NEW_PATCH '{print $1"."$2"."patch}')
         echo "New version: $NEW_VERSION"
         echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
+        echo "::set-output name=new_version::$NEW_VERSION"
         mvn versions:set -DnewVersion=$NEW_VERSION
         mvn versions:commit
 
