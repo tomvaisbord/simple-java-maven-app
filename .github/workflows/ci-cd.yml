@@ -113,9 +113,9 @@ jobs:
           --document-name "AWS-RunShellScript" \
           --targets "Key=instanceIds,Values=$EC2_INSTANCE_ID" \
           --parameters '{"commands":["sudo docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD",
-                                     "sudo docker pull $DOCKER_USERNAME/myapp:${{ steps.increment_version.outputs.new_version }}",
-                                     "sudo docker stop myapp || true",
-                                     "sudo docker rm myapp || true",
-                                     "sudo docker run --rm $DOCKER_USERNAME/myapp:${{ steps.increment_version.outputs.new_version }}"]}' \
+                                     "docker pull $DOCKER_USERNAME/myapp:${{ steps.increment_version.outputs.new_version }}",
+                                     "docker stop myapp || true",
+                                     "docker rm myapp || true",
+                                     "docker run --rm $DOCKER_USERNAME/myapp:${{ steps.increment_version.outputs.new_version }}"]}' \
           --timeout-seconds 600 \
           --comment "Deploying myapp to EC2 instance"
