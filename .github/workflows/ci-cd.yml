@@ -91,7 +91,7 @@ jobs:
         name: myapp-jar
         path: target/*.jar
 
-  - name: Deploy Docker image to EC2
+    - name: Deploy Docker image to EC2
       run: |
         aws ssm send-command \
           --document-name "AWS-RunShellScript" \
