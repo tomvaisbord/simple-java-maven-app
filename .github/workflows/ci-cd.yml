@@ -103,7 +103,7 @@ jobs:
         aws ssm send-command \
           --document-name "AWS-RunShellScript" \
           --targets "Key=instanceIds,Values=${{ secrets.EC2_INSTANCE_ID }}" \
-          --parameters 'commands=["docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}", "docker pull ${{ secrets.DOCKER_USERNAME }}/myapp:${{ steps.increment_version.outputs.new_version }}", "docker stop myapp || true", "docker rm myapp || true", "docker run --rm ${{ secrets.DOCKER_USERNAME }}/myapp:${{ steps.increment_version.outputs.new_version }}"]' \
+          --parameters 'commands=["docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}", "docker pull ${{ secrets.DOCKER_USERNAME }}/myapp:${{ steps.increment_version.outputs.new_version }}", "docker stop myapp || true", "docker rm myapp || true", "docker run -d --name myapp ${{ secrets.DOCKER_USERNAME }}/myapp:${{ steps.increment_version.outputs.new_version }}"]' \
           --timeout-seconds 600 \
           --max-concurrency "50" \
           --max-errors "0" \
