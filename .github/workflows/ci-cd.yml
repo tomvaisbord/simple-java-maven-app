@@ -41,6 +41,11 @@ jobs:
         JAVA_HOME: ${{ steps.setup-java.outputs.java-home }}
       with:
         args: --severity-threshold=high --fail-on=all
+
+    - name: Lint Dockerfile with Hadolint
+      uses: hadolint/hadolint-action@v2
+      with:
+        dockerfile: Dockerfile
         
     - name: Get current version from git tags
       id: get_version
