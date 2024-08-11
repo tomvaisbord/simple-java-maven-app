@@ -147,3 +147,4 @@ jobs:
           --max-concurrency "50" \
           --max-errors "0" \
           --region ${{ secrets.EC2_INSTANCE_REGION }}
+
