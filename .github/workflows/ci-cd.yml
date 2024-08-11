@@ -44,7 +44,7 @@ jobs:
 
     - name: Lint Dockerfile with Hadolint (Docker)
       run: docker run --rm -i hadolint/hadolint < Dockerfile
-        
+
     - name: Get current version from git tags
       id: get_version
       run: |
@@ -99,11 +99,30 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Push Docker image
+    - name: Push Docker image and capture digest
       run: |
         VERSION=${{ steps.increment_version.outputs.new_version }}
-        docker tag myapp:$VERSION ${{ secrets.DOCKER_USERNAME }}/myapp:$VERSION
-        docker push ${{ secrets.DOCKER_USERNAME }}/myapp:$VERSION
+        digest=$(docker push ${{ secrets.DOCKER_USERNAME }}/myapp:$VERSION | tail -1 | awk '{print $3}')
+        echo "digest=$digest" >> $GITHUB_ENV
+
+    # Cosign integration begins here
+    - name: Install Cosign
+      uses: sigstore/cosign-installer@v3.6.0
+
+    - name: Sign images with a key
+      if: github.ref == 'refs/heads/master'
+      run: |
+        images="${{ secrets.DOCKER_USERNAME }}/simple-java-maven-app:${{ env.NEW_VERSION }}@${{ env.digest }}"
+        cosign sign --yes --key env://COSIGN_PRIVATE_KEY ${images}
+      env:
+        COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+        COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+        DIGEST: ${{ env.digest }}
+
+    - name: Verify Docker image with Cosign
+      run: |
+        VERSION=${{ steps.increment_version.outputs.new_version }}
+        cosign verify ${{ secrets.DOCKER_USERNAME }}/myapp:$VERSION
 
     - name: Upload JAR file
       uses: actions/upload-artifact@v3
@@ -128,4 +147,3 @@ jobs:
           --max-concurrency "50" \
           --max-errors "0" \
           --region ${{ secrets.EC2_INSTANCE_REGION }}
-          
