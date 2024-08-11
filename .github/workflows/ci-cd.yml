@@ -103,10 +103,6 @@ jobs:
         COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
         digest: ${{ env.digest }}
 
-    - name: Push Cosign signature to Docker Hub
-      run: |
-        docker push ${{ secrets.DOCKER_USERNAME }}/myapp:$VERSION.sig
-
     - name: Verify Docker image with Cosign using cosign.pub
       run: |
         cosign verify --key cosign.pub ${{ secrets.DOCKER_USERNAME }}/myapp:${{ steps.increment_version.outputs.new_version }}
