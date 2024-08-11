@@ -59,8 +59,13 @@ jobs:
       run: |
         git config --global user.name 'github-actions'
         git config --global user.email 'github-actions@github.com'
-        git tag -a "v${{ steps.increment_version.outputs.new_version }}" -m "Release version ${{ steps.increment_version.outputs.new_version }}"
-        git push origin "v${{ steps.increment_version.outputs.new_version }}"
+        TAG_NAME="v${{ steps.increment_version.outputs.new_version }}"
+        if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+          echo "Tag $TAG_NAME already exists. Skipping tag creation."
+        else
+          git tag -a "$TAG_NAME" -m "Release version $TAG_NAME"
+          git push origin "$TAG_NAME"
+        fi
 
     - name: Build with Maven
       run: mvn clean package -DskipTests
