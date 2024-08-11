@@ -44,7 +44,7 @@ jobs:
 
     - name: Lint Dockerfile with Hadolint (Docker)
       run: docker run --rm -i hadolint/hadolint < Dockerfile
-
+        
     - name: Get current version from git tags
       id: get_version
       run: |
@@ -102,15 +102,10 @@ jobs:
     - name: Push Docker image and capture digest
       run: |
         VERSION=${{ steps.increment_version.outputs.new_version }}
-<<<<<<< HEAD
-        digest=$(docker push ${{ secrets.DOCKER_USERNAME }}/myapp:$VERSION | tail -1 | awk '{print $3}')
-=======
         digest=$(docker push ${{ secrets.DOCKER_USERNAME }}/myapp:$VERSION | grep -oE "digest: sha256:[a-f0-9]{64}" | awk '{print $2}')
         echo "Digest: $digest"
->>>>>>> b7b762909be8cc7364d85a7c7861cc37b016b435
         echo "digest=$digest" >> $GITHUB_ENV
 
-    # Cosign integration begins here
     - name: Install Cosign
       uses: sigstore/cosign-installer@v3.6.0
 
@@ -122,11 +117,7 @@ jobs:
       env:
         COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
         COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-<<<<<<< HEAD
-        DIGEST: ${{ env.digest }}
-=======
         digest: ${{ env.digest }}
->>>>>>> b7b762909be8cc7364d85a7c7861cc37b016b435
 
     - name: Verify Docker image with Cosign
       run: |
@@ -156,7 +147,3 @@ jobs:
           --max-concurrency "50" \
           --max-errors "0" \
           --region ${{ secrets.EC2_INSTANCE_REGION }}
-<<<<<<< HEAD
-=======
-
->>>>>>> b7b762909be8cc7364d85a7c7861cc37b016b435
