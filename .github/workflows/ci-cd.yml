@@ -31,6 +31,14 @@ jobs:
         echo "MAVEN_HOME=/usr/local/apache-maven" >> $GITHUB_ENV
         echo "/usr/local/apache-maven/bin" >> $GITHUB_PATH
 
+    - name: Run Snyk Maven Dependency Scan
+      uses: snyk/actions/maven-3-jdk-17@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        JAVA_HOME: ${{ steps.setup-java.outputs.java-home }}
+      with:
+        args: --severity-threshold=high --fail-on=all
+        
     - name: Get current version from git tags
       id: get_version
       run: |
