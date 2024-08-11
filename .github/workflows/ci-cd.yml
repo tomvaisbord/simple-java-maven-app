@@ -44,7 +44,7 @@ jobs:
 
     - name: Lint Dockerfile with Hadolint (Docker)
       run: docker run --rm -i hadolint/hadolint < Dockerfile
-
+        
     - name: Get current version from git tags
       id: get_version
       run: |
@@ -102,7 +102,7 @@ jobs:
     - name: Push Docker image and capture digest
       run: |
         VERSION=${{ steps.increment_version.outputs.new_version }}
-        digest=$(docker push ${{ secrets.DOCKER_USERNAME }}/myapp:$VERSION | tail -1 | awk '{print $3}')
+        digest=$(docker push ${{ secrets.DOCKER_USERNAME }}/myapp:$VERSION | grep "digest: " | awk '{print $2}')
         echo "digest=$digest" >> $GITHUB_ENV
 
     # Cosign integration begins here
@@ -147,4 +147,3 @@ jobs:
           --max-concurrency "50" \
           --max-errors "0" \
           --region ${{ secrets.EC2_INSTANCE_REGION }}
-
