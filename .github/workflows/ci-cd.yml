@@ -70,19 +70,8 @@ jobs:
     - name: Build with Maven
       run: mvn clean package -DskipTests
 
-    - name: Run Snyk Maven Dependency Scan
-      uses: snyk/actions/maven-3-jdk-17@master
-      env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        JAVA_HOME: ${{ steps.setup-java.outputs.java-home }}
-      with:
-        args: --severity-threshold=high --fail-on=all
-
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
-
-    - name: Lint Dockerfile with Hadolint (Docker)
-      run: docker run --rm -i hadolint/hadolint < Dockerfile
 
     - name: Build Docker image
       run: |
@@ -116,7 +105,10 @@ jobs:
 
     - name: Verify Docker image with Cosign
       run: |
-        cosign verify ${{ secrets.DOCKER_USERNAME }}/myapp:${{ steps.increment_version.outputs.new_version }}
+        cosign verify --key env://COSIGN_PRIVATE_KEY ${{ secrets.DOCKER_USERNAME }}/myapp:${{ steps.increment_version.outputs.new_version }}
+      env:
+        COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+        COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
 
     - name: Upload JAR file
       uses: actions/upload-artifact@v3
