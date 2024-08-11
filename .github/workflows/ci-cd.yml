@@ -102,8 +102,8 @@ jobs:
     - name: Push Docker image and capture digest
       run: |
         VERSION=${{ steps.increment_version.outputs.new_version }}
-        digest=$(docker push ${{ secrets.DOCKER_USERNAME }}/myapp:$VERSION | grep "digest: " | awk '{print $2}')
-        echo "digest=$digest"
+        digest=$(docker push ${{ secrets.DOCKER_USERNAME }}/myapp:$VERSION | grep -oE "digest: sha256:[a-f0-9]{64}" | awk '{print $2}')
+        echo "Digest: $digest"
         echo "digest=$digest" >> $GITHUB_ENV
 
     # Cosign integration begins here
