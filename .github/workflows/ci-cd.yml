@@ -103,6 +103,7 @@ jobs:
       run: |
         VERSION=${{ steps.increment_version.outputs.new_version }}
         digest=$(docker push ${{ secrets.DOCKER_USERNAME }}/myapp:$VERSION | grep "digest: " | awk '{print $2}')
+        echo "digest=$digest"
         echo "digest=$digest" >> $GITHUB_ENV
 
     # Cosign integration begins here
@@ -117,7 +118,7 @@ jobs:
       env:
         COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
         COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-        DIGEST: ${{ env.digest }}
+        digest: ${{ env.digest }}
 
     - name: Verify Docker image with Cosign
       run: |
